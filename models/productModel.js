@@ -2,10 +2,10 @@ const mongoose = require('mongoose')
 
 const productSchema = mongoose.Schema(
     {
-        PET_ID: {
-            type: String,
-            required: true
-        },
+        // PET_ID: {
+        //     type: String,
+        //     required: true
+        // },
         PET_NAME: {
             type: String,
             required: [true, "Please enter a pet name"]
