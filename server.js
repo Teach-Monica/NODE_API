@@ -6,26 +6,67 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 
-//routes
 
 app.get('/', (req, res) => {
     res.send('Hello NODE API')
-})
+});
 
-// app.get('/blog', (req, res) => {
-//     res.send('Hello Blog, ')
-// })
-
-app.get('/products', async(req, res) => {
+app.get('/pets/inBetween', async (req, res) => {
     try {
-        const products = await Product.find({});
+        const { startTime,endTime } = req.query;
+        startTime ? startTime : "0000-00-00T00:00:00.000Z";
+        endTime ? endTime : new Date();
+        const filter = {};
+        if (startTime && endTime) {
+            filter.createdAt = {
+                $gte: new Date(startTime),
+                $lte: new Date(endTime)
+            };
+        }
+        const products = await Product.find(filter);
+
         res.status(200).json(products);
     } catch (error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({ message: error.message });
     }
-})
+});
 
-app.get('/products/:id', async(req, res) =>{
+
+
+
+app.get('/pets', async (req, res) => {
+    try {
+        // Retrieve the filter parameters from the query string
+        const { createdAt, updatedAt, petName, petBreed, petType } = req.query;
+
+        // Build the filter object based on the provided parameters
+        const filter = {};
+        if (createdAt) {
+            filter.createdAt = { $gte: new Date(createdAt) };
+        }
+        if (updatedAt) {
+            filter.updatedAt = { $gte: new Date(updatedAt) };
+        }
+        if (petName) {
+            filter.PET_NAME = petName;
+        }
+
+        if (petBreed) {
+            filter.PET_BREED = petBreed;
+        }
+
+        if (petType) {
+            filter.PET_TYPE = petType;
+        }
+        // Find products that match the filter
+        const products = await Product.find(filter);
+
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+app.get('/pets/:id', async(req, res) =>{
     try {
         const {id} = req.params;
         const product = await Product.findById(id);
@@ -36,7 +77,8 @@ app.get('/products/:id', async(req, res) =>{
 })
 
 
-app.post('/products', async(req, res) => {
+app.post('/pets', async(req, res) => {
+    console.log("dasdasds");
     try {
         const product = await Product.create(req.body)
         res.status(200).json(product);
@@ -48,7 +90,7 @@ app.post('/products', async(req, res) => {
 })
 
 // update a product
-app.put('/products/:id', async(req, res) => {
+app.put('/pets/:id', async(req, res) => {
     try {
         const {id} = req.params;
         const product = await Product.findByIdAndUpdate(id, req.body);
@@ -66,7 +108,7 @@ app.put('/products/:id', async(req, res) => {
 
 // delete a product
 
-app.delete('/products/:id', async(req, res) =>{
+app.delete('/pets/:id', async(req, res) =>{
     try {
         const {id} = req.params;
         const product = await Product.findByIdAndDelete(id);
@@ -82,11 +124,11 @@ app.delete('/products/:id', async(req, res) =>{
 
 mongoose.set("strictQuery", false)
 mongoose.
-connect('mongodb+srv://monica:cMU52QAsQHFXeSgO@cluster0.rnkrmgc.mongodb.net/CRUD-API?retryWrites=true&w=majority')
+connect('mongodb+srv://hapa19cs:VkKcpP7L2EcKoFTw@cluster0.tsckjpz.mongodb.net/CRUD-API?retryWrites=true&w=majority')
 .then(() => {
     console.log('connected to MongoDB')
-    app.listen(3000, ()=> {
-        console.log(`Node API app is running on port 3000`)
+    app.listen(8000, ()=> {
+        console.log(`Node API for PET CRUD operations is running on port 3000`)
     });
 }).catch((error) => {
     console.log(error)
